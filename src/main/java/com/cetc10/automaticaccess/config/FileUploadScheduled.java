@@ -38,7 +38,7 @@ public class FileUploadScheduled {
     /**
      * 文件上传FTP定时任务
      */
-    @Scheduled(cron = "*/5 * * * * ?")
+    @Scheduled(cron = "${scheduled.cron}")
     public void uploadFileToFtp() {
         File file = new File(inPathParent);
         if (!file.exists()) {
