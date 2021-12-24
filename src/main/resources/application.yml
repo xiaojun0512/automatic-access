@@ -1,0 +1,16 @@
+server:
+  port: 8099
+
+swagger:
+  swagger-ui-open: true
+
+file:
+  inPathParent: E:\文档\test\in\
+  outPathParent: E:\文档\test\out\
+  errorPathParent: E:\文档\test\error\
+
+ftp:
+  host: 192.168.0.143
+  port: 21
+  username: xiaojun
+  password: xiaojun123456
