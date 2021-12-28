@@ -2,6 +2,7 @@ package com.cetc10.automaticaccess.service;
 
 import com.cetc10.automaticaccess.entity.Computer;
 import com.cetc10.automaticaccess.entity.User;
+import com.cetc10.automaticaccess.util.ResultUtils;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,7 +21,9 @@ public interface MongoService {
 
     Computer getComputerListById(String id);
 
-    String saveFile(MultipartFile multipartFile);
+    ResultUtils saveFile(MultipartFile multipartFile);
 
     GridFSFile searchFileById(Object id);
+
+    List<Computer> getComputerDetail(String word);
 }

@@ -1,8 +1,10 @@
 package com.cetc10.automaticaccess.controller;
 
 import com.cetc10.automaticaccess.entity.Computer;
+import com.cetc10.automaticaccess.entity.FileDetail;
 import com.cetc10.automaticaccess.entity.User;
 import com.cetc10.automaticaccess.service.MongoService;
+import com.cetc10.automaticaccess.util.ResultUtils;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -74,7 +76,7 @@ public class MongoController {
 
     @PostMapping("saveFile")
     @ApiOperation(value = "保存文件")
-    public String saveFile(MultipartFile file){
+    public ResultUtils saveFile(MultipartFile file){
         return mongoService.saveFile(file);
     }
 
@@ -85,5 +87,14 @@ public class MongoController {
     })
     public GridFSFile searchFileById(String id){
         return mongoService.searchFileById(id);
+    }
+
+    @PostMapping("getComputerDetail")
+    @ApiOperation(value = "全文检索-搜索电脑详情")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query",dataType = "string",name = "word",value = "搜索词",required = true)
+    })
+    public List<Computer> getComputerDetail(String word){
+        return mongoService.getComputerDetail(word);
     }
 }
