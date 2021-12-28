@@ -38,7 +38,7 @@ public class FileUploadScheduled {
     /**
      * 文件上传FTP定时任务
      */
-    @Scheduled(cron = "${scheduled.cron}")
+//    @Scheduled(cron = "${scheduled.cron}")
     public void uploadFileToFtp() {
         File file = new File(inPathParent);
         if (!file.exists()) {
@@ -48,6 +48,7 @@ public class FileUploadScheduled {
         fileHandle(file);
 
         FTPClient ftpClient = FtpUtils.loginFTP(host, port, username, password);
+        assert ftpClient != null;
         if (ftpClient.isConnected()) {
             try {
                 ftpClient.disconnect();
