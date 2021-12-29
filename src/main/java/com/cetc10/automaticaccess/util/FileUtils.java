@@ -3,7 +3,10 @@ package com.cetc10.automaticaccess.util;
 import com.aspose.words.Document;
 import com.aspose.words.License;
 import com.aspose.words.SaveFormat;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -146,5 +149,30 @@ public class FileUtils {
             }
         }
         return content;
+    }
+
+    /**
+     * 读取pdf文本
+     * @param inputStream
+     * @return
+     */
+    public static String readPdfToString (InputStream inputStream){
+        String text = null;
+        try {
+            PDDocument document = PDDocument.load(inputStream);
+            PDFTextStripper pdfTextStripper = new PDFTextStripper();
+            text = pdfTextStripper.getText(document);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ObjectUtils.isNotEmpty(inputStream)) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return text;
     }
 }

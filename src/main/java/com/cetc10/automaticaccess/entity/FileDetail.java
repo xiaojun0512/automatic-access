@@ -3,6 +3,7 @@ package com.cetc10.automaticaccess.entity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -27,6 +28,6 @@ public class FileDetail {
     @ApiModelProperty(value = "文件md5")
     private String md5;
     @ApiModelProperty(value = "文件id")
-    private String fileId;
+    private ObjectId objectId;
 
 }

@@ -14,6 +14,12 @@ public class ResultUtils {
         return result;
     }
 
+    public static ResultUtils success(String msg) {
+        ResultUtils result = new ResultUtils();
+        result.setMsg(msg);
+        return result;
+    }
+
     public static ResultUtils error(String msg) {
         ResultUtils result = new ResultUtils();
         result.setCode(400);

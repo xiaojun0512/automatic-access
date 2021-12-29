@@ -9,17 +9,23 @@ import com.cetc10.automaticaccess.entity.User;
 import com.cetc10.automaticaccess.service.MongoService;
 import com.cetc10.automaticaccess.util.FileUtils;
 import com.cetc10.automaticaccess.util.ResultUtils;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSBuckets;
+import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -58,7 +64,13 @@ public class MongoServiceImpl implements MongoService {
     @Override
     public User getUserListById(String id) {
         return mongoTemplate.findById(id,User.class);   //方式1
-//        return mongoUserDao.findById(id).get();   //方式2
+
+        /*Optional<User> byId = mongoUserDao.findById(id);
+        if (ObjectUtils.isNotEmpty(byId)) {
+            return byId.get();   //方式2
+        } else {
+            return null;
+        }*/
     }
 
     @Override
@@ -75,8 +87,8 @@ public class MongoServiceImpl implements MongoService {
     }
 
     @Override
-    public Computer getComputerListById(String id) {
-        return mongoComputerDao.findById(id).get();
+    public Computer getComputerById(String id) {
+        return mongoTemplate.findById(id, Computer.class);
     }
 
     @Override
@@ -101,12 +113,14 @@ public class MongoServiceImpl implements MongoService {
                 fileDetail.setContent(FileUtils.readTxtToString(file.getInputStream()));
             } else if ("doc".equals(type) || "docx".equals(type)) {
                 fileDetail.setContent(FileUtils.readWordToString(file.getInputStream()));
+            } else if ("pdf".equals(type)) {
+                fileDetail.setContent(FileUtils.readPdfToString(file.getInputStream()));
             }
             fileDetail.setSize(file.getSize());
 
-            //保存文件到mongodb并返回文件id
+            //保存文件到mongodb并返回文件objectId
             ObjectId objectId = gridFsTemplate.store(file.getInputStream(), filename, file.getContentType());
-            fileDetail.setFileId(objectId.toString());
+            fileDetail.setObjectId(objectId);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -114,9 +128,49 @@ public class MongoServiceImpl implements MongoService {
     }
 
     @Override
-    public GridFSFile searchFileById(Object id) {
+    public ResultUtils downLoadFile(String id) {
+        FileDetail fileDetail = mongoTemplate.findById(id,FileDetail.class);
+        if (ObjectUtils.isNotEmpty(fileDetail)) {
+            ObjectId objectId = fileDetail.getObjectId();
+            GridFSBucket gridFSBucket = GridFSBuckets.create(mongoTemplate.getDb());
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+            try {
+                //根据文件ObjectId查出文件对象
+                GridFSDownloadStream gridFSDownloadStream = gridFSBucket.openDownloadStream(objectId);
+                //获取文件的下载流
+                GridFsResource gridFsResource = new GridFsResource(searchFileById(String.valueOf(objectId)), gridFSDownloadStream);
+                //将下载流转为输入流
+                inputStream = gridFsResource.getInputStream();
+                //设置输出流存储到指定位置
+                outputStream = new FileOutputStream(new File("E:\\文档\\test\\"+fileDetail.getFileName()));
+                FileCopyUtils.copy(inputStream,outputStream);
+                return ResultUtils.success("下载文件成功");
+            } catch (IOException e) {
+                e.printStackTrace();
+                return ResultUtils.error("下载文件失败");
+            } finally {
+                try {
+                    if (ObjectUtils.isNotEmpty(outputStream)) {
+                        outputStream.close();
+                    }
+                    if (ObjectUtils.isNotEmpty(inputStream)) {
+                        inputStream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            return ResultUtils.error("文件不存在");
+        }
+
+    }
+
+    @Override
+    public GridFSFile searchFileById(String objectId) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is(id));
+        query.addCriteria(Criteria.where("_id").is(objectId));
         return gridFsTemplate.findOne(query);
     }
 

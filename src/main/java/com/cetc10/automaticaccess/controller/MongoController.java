@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,13 +66,13 @@ public class MongoController {
         return mongoService.getComputerListByName(name);
     }
 
-    @GetMapping("getComputerListById")
+    @GetMapping("getComputerById")
     @ApiOperation(value = "根据ID获取电脑")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query",dataType = "string",name = "id",value = "id",required = true)
     })
-    public Computer getComputerListById(String id){
-        return mongoService.getComputerListById(id);
+    public Computer getComputerById(String id){
+        return mongoService.getComputerById(id);
     }
 
     @PostMapping("saveFile")
@@ -80,13 +81,22 @@ public class MongoController {
         return mongoService.saveFile(file);
     }
 
+    @GetMapping("downLoadFile")
+    @ApiOperation(value = "下载文件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query",dataType = "string",name = "id",value = "文件详情id",required = true)
+    })
+    public ResultUtils downLoadFile(String id){
+        return mongoService.downLoadFile(id);
+    }
+
     @PostMapping("searchFileById")
     @ApiOperation(value = "根据文件id获取文件")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "query",dataType = "string",name = "id",value = "id",required = true)
+            @ApiImplicitParam(paramType = "query",dataType = "string",name = "objectId",value = "文件id",required = true)
     })
-    public GridFSFile searchFileById(String id){
-        return mongoService.searchFileById(id);
+    public GridFSFile searchFileById(String objectId){
+        return mongoService.searchFileById(objectId);
     }
 
     @PostMapping("getComputerDetail")

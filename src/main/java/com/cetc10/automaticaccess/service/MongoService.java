@@ -19,11 +19,13 @@ public interface MongoService {
 
     List<Computer> getComputerListByName(String name);
 
-    Computer getComputerListById(String id);
+    Computer getComputerById(String id);
 
     ResultUtils saveFile(MultipartFile multipartFile);
 
-    GridFSFile searchFileById(Object id);
+    ResultUtils downLoadFile(String id);
+
+    GridFSFile searchFileById(String id);
 
     List<Computer> getComputerDetail(String word);
 }
