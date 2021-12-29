@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -46,6 +47,8 @@ public class MongoServiceImpl implements MongoService {
     private MongoComputerDao mongoComputerDao;
     @Autowired
     private MongoFileDetailDao mongoFileDetailDao;
+    @Value("${mongodb.downloadPath}")
+    private String downloadPath;
 
     @Override
     public void addUser(User user) {
@@ -143,7 +146,11 @@ public class MongoServiceImpl implements MongoService {
                 //将下载流转为输入流
                 inputStream = gridFsResource.getInputStream();
                 //设置输出流存储到指定位置
-                outputStream = new FileOutputStream(new File("E:\\文档\\test\\"+fileDetail.getFileName()));
+                File file = new File(downloadPath);
+                if (!file.exists()) {
+                    file.mkdirs();
+                }
+                outputStream = new FileOutputStream(new File(file.getPath() + File.separator + fileDetail.getFileName()));
                 FileCopyUtils.copy(inputStream,outputStream);
                 return ResultUtils.success("下载文件成功");
             } catch (IOException e) {

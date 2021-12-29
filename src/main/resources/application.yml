@@ -24,3 +24,6 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 100MB
+
+mongodb:
+  downloadPath: E:\文档\test2\11\
