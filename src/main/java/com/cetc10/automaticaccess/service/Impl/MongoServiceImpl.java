@@ -142,7 +142,8 @@ public class MongoServiceImpl implements MongoService {
                 //根据文件ObjectId查出文件对象
                 GridFSDownloadStream gridFSDownloadStream = gridFSBucket.openDownloadStream(objectId);
                 //获取文件的下载流
-                GridFsResource gridFsResource = new GridFsResource(searchFileById(String.valueOf(objectId)), gridFSDownloadStream);
+                GridFsResource gridFsResource = new GridFsResource(gridFSDownloadStream.getGridFSFile(), gridFSDownloadStream);
+//                GridFsResource gridFsResource = new GridFsResource(searchFileById(String.valueOf(objectId)), gridFSDownloadStream);
                 //将下载流转为输入流
                 inputStream = gridFsResource.getInputStream();
                 //设置输出流存储到指定位置
