@@ -1,8 +1,6 @@
 package com.cetc10.automaticaccess.util;
 
-import com.aspose.words.Document;
-import com.aspose.words.License;
-import com.aspose.words.SaveFormat;
+import com.aspose.words.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -11,6 +9,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class FileUtils {
     /**
@@ -78,6 +77,69 @@ public class FileUtils {
             }
         }
         return true;
+    }
+
+    /**
+     * 将word的内容转为html返回字符串，图片全部转为base64编码。
+     * @param wordPath
+     * @return
+     */
+    public static String wordToHtml(String wordPath){
+        try {
+            // 验证License 若不验证则转化出的pdf文档会有水印产生
+            getLicense();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        ByteArrayOutputStream htmlStream = new ByteArrayOutputStream();
+        String htmlTxt = "";
+        try {
+            Document document = new Document(wordPath);
+            HtmlSaveOptions options = new HtmlSaveOptions(SaveFormat.HTML);
+            options.setExportXhtmlTransitional(true);
+            options.setExportImagesAsBase64(true);
+            options.setExportPageSetup(true);
+            document.save(htmlStream,options);
+            htmlTxt = new String(htmlStream.toByteArray(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                htmlStream.flush();
+                htmlStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println(htmlTxt);
+        return htmlTxt;
+    }
+
+    /**
+     * html文本转为word
+     * @param html html文本
+     * @param wordPath
+     * @return
+     */
+    public static boolean htmlToWord(String html,String wordPath){
+        try {
+            // 验证License 若不验证则转化出的pdf文档会有水印产生
+            getLicense();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Document document = new Document();
+            DocumentBuilder builder = new DocumentBuilder(document);
+            builder.insertHtml(html);
+            document.save(wordPath,SaveOptions.createSaveOptions(SaveFormat.DOC));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**
